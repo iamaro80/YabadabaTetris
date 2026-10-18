@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fusaifisa — Jordanian Architectural Mosaic Tetris</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans, Cinzel, JetBrains Mono & Material Symbols Outlined -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Cinzel"', 'serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        limestone: {
+                            50: '#FBF9F5',
+                            100: '#F3EFE6',
+                            200: '#E8E0D2',
+                            300: '#D7CBB8',
+                            800: '#2A2624',
+                            900: '#1D1B1A',
+                        },
+                        petra: {
+                            DEFAULT: '#C86D51',
+                            dark: '#9E472D',
+                            light: '#F4DBD3',
+                        },
+                        deadsea: {
+                            DEFAULT: '#2A7B7C',
+                            light: '#D3ECEC',
+                        },
+                        ochre: {
+                            DEFAULT: '#D49B38',
+                        },
+                        cobalt: {
+                            DEFAULT: '#2E5B88',
+                        },
+                        olive: {
+                            DEFAULT: '#5E7A52',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Material Design 3 variables & architectural surface treatments */
+        :root {
+            --bg-surface: #FBF9F5;
+            --bg-card: #F3EFE6;
+            --bg-card-elevated: #ECE5D8;
+            --border-stone: #DED4C3;
+            --text-primary: #231F1E;
+            --text-secondary: #685F58;
+            --accent-terracotta: #C86D51;
+            --board-bg: #EAE3D5;
+            --grid-line: rgba(140, 122, 107, 0.16);
+        }
+
+        html.dark {
+            --bg-surface: #181615;
+            --bg-card: #24211F;
+            --bg-card-elevated: #2F2B28;
+            --border-stone: #3D3734;
+            --text-primary: #F3EFE6;
+            --text-secondary: #A89F96;
+            --accent-terracotta: #D97F63;
+            --board-bg: #1F1C1A;
+            --grid-line: rgba(215, 203, 184, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Subtle Sandstone Grain Overlay */
+        .sandstone-bg {
+            background-image: radial-gradient(rgba(200, 109, 81, 0.06) 1px, transparent 0),
+                              radial-gradient(rgba(42, 123, 124, 0.05) 1px, transparent 0);
+            background-size: 28px 28px;
+            background-position: 0 0, 14px 14px;
+        }
+
+        /* Material Design 3 Card Surface */
+        .md3-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-stone);
+            box-shadow: 0 2px 6px -1px rgba(29, 27, 26, 0.06), 0 1px 3px -1px rgba(29, 27, 26, 0.04);
+            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        /* Material Ripple & Tonal Button */
+        .md3-btn {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .md3-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Ablaq Architectural Striped Border Accent */
+        .ablaq-border {
+            background: repeating-linear-gradient(
+                90deg,
+                #C86D51 0px,
+                #C86D51 16px,
+                #F3EFE6 16px,
+                #F3EFE6 32px,
+                #2A2624 32px,
+                #2A2624 48px,
+                #F3EFE6 48px,
+                #F3EFE6 64px
+            );
+            height: 4px;
+            width: 100%;
+            opacity: 0.85;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        /* Prevent pull-to-refresh and double-tap zoom on mobile touch controls */
+        .touch-action-none {
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="sandstone-bg min-h-screen flex flex-col justify-between">
+
+    <!-- Top Ablaq Architectural Accent Bar -->
+    <div class="ablaq-border"></div>
+
+    <!-- Single-Level Material Design 3 Top App Bar -->
+    <header class="w-full max-w-6xl mx-auto px-3 sm:px-6 pt-3 pb-2">
+        <nav class="md3-card rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand Identity -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-petra text-white flex items-center justify-center shadow-sm relative overflow-hidden">
+                    <!-- Inline SVG 8-Pointed Rub el Hizb Mosaic Star -->
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <rect x="5" y="5" width="14" height="14" rx="1" />
+                        <rect x="5" y="5" width="14" height="14" rx="1" transform="rotate(45 12 12)" />
+                        <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-display font-bold text-lg sm:text-xl tracking-wider text-petra dark:text-[#E58A6E]">FUSAIFISA</h1>
+                        <span class="hidden sm:inline-block text-[11px] font-mono uppercase px-2 py-0.5 rounded-full bg-petra/15 text-petra dark:text-[#E58A6E] font-semibold">Amman · Madaba · Petra</span>
+                    </div>
+                    <p class="text-xs text-[var(--text-secondary)] hidden xs:block">Jordanian Architectural & Mosaic Craft Tetris</p>
+                </div>
+            </div>
+
+            <!-- Single-Level Action Bar -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <!-- Primary Play / Pause Button -->
+                <button id="btnPlayPause" class="md3-btn flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-petra text-white font-medium text-sm shadow-sm hover:opacity-95" title="Play or Pause Game (P)">
+                    <span id="iconPlayPause" class="material-symbols-outlined text-[20px]">play_arrow</span>
+                    <span id="labelPlayPause">Play</span>
+                </button>
+
+                <!-- Restart Button -->
+                <button id="btnRestart" class="md3-btn flex items-center gap-1 px-3 py-2 rounded-xl bg-[var(--bg-card-elevated)] hover:bg-petra/15 text-sm font-medium" title="Restart Mosaic (R)">
+                    <span class="material-symbols-outlined text-[20px]">restart_alt</span>
+                    <span class="hidden md:inline">Reset</span>
+                </button>
+
+                <!-- Sound Toggle Pill -->
+                <button id="btnSound" class="md3-btn p-2 rounded-xl bg-[var(--bg-card-elevated)] hover:bg-petra/15" title="Toggle Acoustic Chimes & Stone Percussion (M)" aria-label="Toggle Sound">
+                    <span id="iconSound" class="material-symbols-outlined text-[20px] text-deadsea dark:text-[#57B8B9]">volume_up</span>
+                </button>
+
+                <!-- Theme Toggle Pill (Limestone Day / Basalt Night) -->
+                <button id="btnTheme" class="md3-btn p-2 rounded-xl bg-[var(--bg-card-elevated)] hover:bg-petra/15" title="Switch Amman Limestone / Umm Qais Basalt Theme" aria-label="Toggle Theme">
+                    <span id="iconTheme" class="material-symbols-outlined text-[20px] text-ochre">dark_mode</span>
+                </button>
+
+                <!-- Inline Controls & Craftsmanship Sheet Toggle -->
+                <button id="btnInfo" class="md3-btn flex items-center gap-1 px-3 py-2 rounded-xl bg-[var(--bg-card-elevated)] hover:bg-petra/15 text-sm font-medium" title="Toggle Controls & Tile Motif Guide">
+                    <span class="material-symbols-outlined text-[20px]">tune</span>
+                    <span class="hidden sm:inline">Guide</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Expandable Inline Sheet for Controls & Mosaic Legend (Single-Level Navigation) -->
+        <div id="infoPanel" class="hidden mt-2 md3-card rounded-2xl p-4 transition-all duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+                <!-- Controls Column -->
+                <div class="space-y-2">
+                    <h2 class="font-semibold text-petra dark:text-[#E58A6E] flex items-center gap-1.5 uppercase tracking-wider text-xs">
+                        <span class="material-symbols-outlined text-[18px]">keyboard</span>
+                        Craftsman Controls
+                    </h2>
+                    <div class="grid grid-cols-2 gap-2 text-[var(--text-secondary)]">
+                        <div class="flex items-center justify-between bg-[var(--bg-surface)] px-2.5 py-1.5 rounded-lg border border-[var(--border-stone)]">
+                            <span>Move Tile</span>
+                            <kbd class="font-mono font-bold text-[var(--text-primary)]">← → / A D</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-[var(--bg-surface)] px-2.5 py-1.5 rounded-lg border border-[var(--border-stone)]">
+                            <span>Rotate Tile</span>
+                            <kbd class="font-mono font-bold text-[var(--text-primary)]">↑ / W / X</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-[var(--bg-surface)] px-2.5 py-1.5 rounded-lg border border-[var(--border-stone)]">
+                            <span>Soft Drop</span>
+                            <kbd class="font-mono font-bold text-[var(--text-primary)]">↓ / S</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-[var(--bg-surface)] px-2.5 py-1.5 rounded-lg border border-[var(--border-stone)]">
+                            <span>Chisel Drop</span>
+                            <kbd class="font-mono font-bold text-[var(--text-primary)]">SPACE</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-[var(--bg-surface)] px-2.5 py-1.5 rounded-lg border border-[var(--border-stone)]">
+                            <span>Hold Tile</span>
+                            <kbd class="font-mono font-bold text-[var(--text-primary)]">C / SHIFT</kbd>
+                        </div>
+                        <div class="flex items-center justify-between bg-[var(--bg-surface)] px-2.5 py-1.5 rounded-lg border border-[var(--border-stone)]">
+                            <span>Pause Work</span>
+                            <kbd class="font-mono font-bold text-[var(--text-primary)]">P / ESC</kbd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Architectural Tile Legend Column -->
+                <div class="space-y-2">
+                    <h2 class="font-semibold text-deadsea dark:text-[#57B8B9] flex items-center gap-1.5 uppercase tracking-wider text-xs">
+                        <span class="material-symbols-outlined text-[18px]">grid_view</span>
+                        Jordanian Heritage Tesserae Motifs
+                    </h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px]">
+                        <div class="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1 rounded-lg border border-[var(--border-stone)]">
+                            <span class="w-3 h-3 rounded-sm bg-[#2A7B7C] shrink-0"></span>
+                            <span class="truncate"><b>I:</b> Dead Sea Band</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1 rounded-lg border border-[var(--border-stone)]">
+                            <span class="w-3 h-3 rounded-sm bg-[#D49B38] shrink-0"></span>
+                            <span class="truncate"><b>O:</b> Umayyad Rosette</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1 rounded-lg border border-[var(--border-stone)]">
+                            <span class="w-3 h-3 rounded-sm bg-[#9E4747] shrink-0"></span>
+                            <span class="truncate"><b>T:</b> Petra 8-Pt Star</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1 rounded-lg border border-[var(--border-stone)]">
+                            <span class="w-3 h-3 rounded-sm bg-[#5E7A52] shrink-0"></span>
+                            <span class="truncate"><b>S:</b> Ajloun Olive Knot</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1 rounded-lg border border-[var(--border-stone)]">
+                            <span class="w-3 h-3 rounded-sm bg-[#C85A32] shrink-0"></span>
+                            <span class="truncate"><b>Z:</b> Wadi Rum Chevron</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-[var(--bg-surface)] px-2 py-1 rounded-lg border border-[var(--border-stone)]">
+                            <span class="w-3 h-3 rounded-sm bg-[#2E5B88] shrink-0"></span>
+                            <span class="truncate"><b>J/L:</b> Cobalt & Sandstone</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Responsive Workspace -->
+    <main class="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 py-2 flex flex-col lg:flex-row items-center lg:items-start justify-center gap-4 lg:gap-6">
+
+        <!-- Left Column (Desktop) / Top Compact Strip (Mobile): Hold Piece & Architectural Metrics -->
+        <aside class="w-full lg:w-60 flex flex-row lg:flex-col gap-2.5 sm:gap-4 order-1 lg:order-1 justify-between">
+            <!-- Hold Tile Card -->
+            <div class="md3-card rounded-2xl p-3 flex-1 lg:flex-none flex flex-col items-center justify-between">
+                <div class="w-full flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Hold Vault</span>
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--bg-card-elevated)] text-[var(--text-secondary)]">C / Shift</span>
+                </div>
+                <div class="relative flex items-center justify-center bg-[var(--board-bg)] rounded-xl border border-[var(--border-stone)] w-24 h-20 sm:w-32 sm:h-24">
+                    <canvas id="holdCanvas" width="120" height="90" class="w-full h-full object-contain"></canvas>
+                </div>
+            </div>
+
+            <!-- Next Queue Card (Visible here on Mobile for compact 1-screen layout, hidden on LG where it sits on right) -->
+            <div class="md3-card rounded-2xl p-3 flex-1 lg:hidden flex flex-col items-center justify-between">
+                <div class="w-full flex items-center justify-between mb-1">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Next Tesserae</span>
+                    <span class="material-symbols-outlined text-[15px] text-petra">auto_awesome_mosaic</span>
+                </div>
+                <div class="relative flex items-center justify-center bg-[var(--board-bg)] rounded-xl border border-[var(--border-stone)] w-24 h-20 sm:w-32 sm:h-24">
+                    <canvas id="nextCanvasMobile" width="120" height="90" class="w-full h-full object-contain"></canvas>
+                </div>
+            </div>
+
+            <!-- Score & Level Card -->
+            <div class="md3-card rounded-2xl p-3 sm:p-4 flex-1 lg:flex-none flex flex-col justify-between gap-2">
+                <div>
+                    <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Mosaic Score</div>
+                    <div id="scoreDisplay" class="font-mono font-bold text-xl sm:text-3xl text-petra dark:text-[#E58A6E] tracking-tight">0</div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-stone)]">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-wider text-[var(--text-secondary)]">Rows Set</div>
+                        <div id="linesDisplay" class="font-mono font-bold text-sm sm:text-lg">0</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] uppercase tracking-wider text-[var(--text-secondary)]">Tier / Level</div>
+                        <div id="levelDisplay" class="font-mono font-bold text-sm sm:text-lg text-deadsea dark:text-[#57B8B9]">1</div>
+                    </div>
+                </div>
+
+                <!-- High Score & Heritage Site Indicator -->
+                <div class="hidden sm:flex flex-col pt-2 border-t border-[var(--border-stone)]">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-[var(--text-secondary)]">Best Craft:</span>
+                        <span id="highScoreDisplay" class="font-mono font-semibold">0</span>
+                    </div>
+                    <div class="mt-2 px-2.5 py-1.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-stone)] flex items-center justify-between">
+                        <span class="text-[11px] text-[var(--text-secondary)]">Epoch:</span>
+                        <span id="eraBadge" class="text-[11px] font-semibold text-petra dark:text-[#E58A6E]">Madaba Map</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Column: The 10x20 Mosaic Courtyard Board -->
+        <section class="order-2 lg:order-2 flex flex-col items-center">
+            <div class="md3-card p-2.5 sm:p-3.5 rounded-3xl relative shadow-lg">
+                <!-- Decorative Corner Stone Studs -->
+                <div class="w-2 h-2 rounded-full bg-petra/40 absolute top-2 left-2"></div>
+                <div class="w-2 h-2 rounded-full bg-petra/40 absolute top-2 right-2"></div>
+                <div class="w-2 h-2 rounded-full bg-petra/40 absolute bottom-2 left-2"></div>
+                <div class="w-2 h-2 rounded-full bg-petra/40 absolute bottom-2 right-2"></div>
+
+                <!-- Main Canvas Container with Arch Framing -->
+                <div id="boardContainer" class="relative rounded-2xl overflow-hidden border-2 border-[var(--border-stone)] bg-[var(--board-bg)] shadow-inner">
+                    <canvas id="tetrisCanvas" width="320" height="640" class="block w-[260px] h-[520px] sm:w-[300px] sm:h-[600px] md:w-[320px] md:h-[640px] touch-action-none"></canvas>
+
+                    <!-- Floating Craftsmanship Toast (e.g., "FUSAIFISA! +800") -->
+                    <div id="craftToast" class="pointer-events-none absolute top-6 inset-x-0 flex justify-center opacity-0 transition-all duration-300 transform -translate-y-2">
+                        <span id="craftToastText" class="px-3.5 py-1 rounded-full bg-petra text-white font-display font-bold text-xs tracking-widest uppercase shadow-md">
+                            Mosaic Complete
+                        </span>
+                    </div>
+
+                    <!-- Start / Pause / Game Over Architectural Overlay -->
+                    <div id="boardOverlay" class="absolute inset-0 bg-[var(--bg-surface)]/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
+                        <!-- Geometric Emblem -->
+                        <div class="w-16 h-16 rounded-2xl bg-petra/15 border border-petra/30 flex items-center justify-center mb-4 text-petra dark:text-[#E58A6E]">
+                            <svg class="w-10 h-10 animate-spin" style="animation-duration: 24s;" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="10" y="10" width="28" height="28" rx="2" />
+                                <rect x="10" y="10" width="28" height="28" rx="2" transform="rotate(45 24 24)" />
+                                <circle cx="24" cy="24" r="5" />
+                            </svg>
+                        </div>
+
+                        <h2 id="overlayTitle" class="font-display font-bold text-2xl sm:text-3xl mb-1 tracking-wide">AL-FUSAIFISA</h2>
+                        <p id="overlaySubtitle" class="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xs mb-6 leading-relaxed">
+                            Assemble carved Petra sandstone, Dead Sea glazed ceramic, and Umayyad star tesserae into complete courtyard rows.
+                        </p>
+
+                        <button id="btnOverlayAction" class="md3-btn flex items-center gap-2 px-6 py-3 rounded-2xl bg-petra text-white font-semibold shadow-md hover:shadow-lg">
+                            <span class="material-symbols-outlined">architecture</span>
+                            <span id="overlayBtnText">Begin Mosaic</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column (Desktop): 3-Piece Next Preview & Craftsmanship Feedback -->
+        <aside class="hidden lg:flex lg:w-60 flex-col gap-4 order-3">
+            <!-- Next 3 Tiles Card -->
+            <div class="md3-card rounded-2xl p-4 flex flex-col items-center">
+                <div class="w-full flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Quarry Queue</span>
+                    <span class="material-symbols-outlined text-[18px] text-petra">view_agenda</span>
+                </div>
+                <div class="w-full bg-[var(--board-bg)] rounded-xl border border-[var(--border-stone)] p-2 flex items-center justify-center">
+                    <canvas id="nextCanvasDesktop" width="140" height="260" class="w-[140px] h-[260px]"></canvas>
+                </div>
+            </div>
+
+            <!-- Craftsmanship Physics & Combo Status Card -->
+            <div class="md3-card rounded-2xl p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Artisan Telemetry</span>
+                    <span class="w-2 h-2 rounded-full bg-deadsea animate-pulse"></span>
+                </div>
+
+                <div class="space-y-2 text-xs">
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-stone)]">
+                        <span class="text-[var(--text-secondary)]">Active Chain</span>
+                        <span id="comboDisplay" class="font-mono font-bold text-ochre">0x</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-stone)]">
+                        <span class="text-[var(--text-secondary)]">Current Motif</span>
+                        <span id="activeMotifName" class="font-medium text-petra dark:text-[#E58A6E]">—</span>
+                    </div>
+                </div>
+
+                <p class="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                    Completed horizontal courses fracture into glazed tesserae shards before upper sandstone courses settle into mortar.
+                </p>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Responsive On-Screen Material Touch / Pointer Control Bar -->
+    <footer class="w-full max-w-xl mx-auto px-3 pt-1 pb-4">
+        <div class="md3-card rounded-2xl p-2 sm:p-2.5 grid grid-cols-6 gap-1.5 sm:gap-2 touch-action-none">
+            <button id="touchLeft" class="md3-btn flex flex-col items-center justify-center py-2.5 rounded-xl bg-[var(--bg-card-elevated)] active:bg-petra active:text-white" aria-label="Move Left">
+                <span class="material-symbols-outlined">west</span>
+                <span class="text-[10px] font-medium mt-0.5">Left</span>
+            </button>
+
+            <button id="touchRight" class="md3-btn flex flex-col items-center justify-center py-2.5 rounded-xl bg-[var(--bg-card-elevated)] active:bg-petra active:text-white" aria-label="Move Right">
+                <span class="material-symbols-outlined">east</span>
+                <span class="text-[10px] font-medium mt-0.5">Right</span>
+            </button>
+
+            <button id="touchRotate" class="md3-btn flex flex-col items-center justify-center py-2.5 rounded-xl bg-petra/15 text-petra dark:text-[#E58A6E] active:bg-petra active:text-white" aria-label="Rotate Tile">
+                <span class="material-symbols-outlined">rotate_right</span>
+                <span class="text-[10px] font-semibold mt-0.5">Rotate</span>
+            </button>
+
+            <button id="touchSoftDrop" class="md3-btn flex flex-col items-center justify-center py-2.5 rounded-xl bg-[var(--bg-card-elevated)] active:bg-petra active:text-white" aria-label="Soft Drop">
+                <span class="material-symbols-outlined">south</span>
+                <span class="text-[10px] font-medium mt-0.5">Down</span>
+            </button>
+
+            <button id="touchHardDrop" class="md3-btn flex flex-col items-center justify-center py-2.5 rounded-xl bg-deadsea/15 text-deadsea dark:text-[#57B8B9] active:bg-deadsea active:text-white" aria-label="Hard Drop">
+                <span class="material-symbols-outlined">keyboard_double_arrow_down</span>
+                <span class="text-[10px] font-semibold mt-0.5">Set</span>
+            </button>
+
+            <button id="touchHold" class="md3-btn flex flex-col items-center justify-center py-2.5 rounded-xl bg-[var(--bg-card-elevated)] active:bg-ochre active:text-white" aria-label="Hold Piece">
+                <span class="material-symbols-outlined">swap_horiz</span>
+                <span class="text-[10px] font-medium mt-0.5">Hold</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Complete Application Logic: Mosaic Renderer, Particle Physics, Web Audio Synthesizer, & Tetris Engine -->
+    <script>
+        /***********************************************************************
+         * 1. JORDANIAN ARCHITECTURAL PALETTE & BESPOKE TETRIMINO DEFINITIONS
+         ***********************************************************************/
+        const COLS = 10;
+        const ROWS = 20;
+        const CELL = 32; // Internal high-DPI canvas coordinate size per block
+
+        const HERITAGE_ERAS = [
+            "Madaba Mosaic Map",
+            "Petra Siq Sandstone",
+            "Qasr Amra Fresco",
+            "Jerash Colonnade",
+            "Umm Qais Basalt",
+            "Wadi Rum Monolith",
+            "Amman Citadel",
+            "Ajloun Fortress",
+            "Aqaba Coral Glaze"
+        ];
+
+        const TETRIMINOS = {
+            I: {
+                id: 'I',
+                name: 'Dead Sea Turquoise Band',
+                matrix: [
+                    [0, 0, 0, 0],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0]
+                ],
+                base: '#2A7B7C',
+                light: '#4EA6A7',
+                dark: '#195253',
+                pattern: '#E9F6F6',
+                accent: '#D49B38'
+            },
+            O: {
+                id: 'O',
+                name: 'Umayyad Desert Rosette',
+                matrix: [
+                    [1, 1],
+                    [1, 1]
+                ],
+                base: '#D49B38',
+                light: '#E8B860',
+                dark: '#9B6C1B',
+                pattern: '#FFF8EB',
+                accent: '#9E472D'
+            },
+            T: {
+                id: 'T',
+                name: 'Petra Rub el Hizb Star',
+                matrix: [
+                    [0, 1, 0],
+                    [1, 1, 1],
+                    [0, 0, 0]
+                ],
+                base: '#9E4747',
+                light: '#C46868',
+                dark: '#6B2929',
+                pattern: '#FCECEC',
+                accent: '#E8B860'
+            },
+            S: {
+                id: 'S',
+                name: 'Ajloun Olive Interlace',
+                matrix: [
+                    [0, 1, 1],
+                    [1, 1, 0],
+                    [0, 0, 0]
+                ],
+                base: '#5E7A52',
+                light: '#819E74',
+                dark: '#3D5234',
+                pattern: '#EFF5EC',
+                accent: '#D49B38'
+            },
+            Z: {
+                id: 'Z',
+                name: 'Wadi Rum Terracotta',
+                matrix: [
+                    [1, 1, 0],
+                    [0, 1, 1],
+                    [0, 0, 0]
+                ],
+                base: '#C85A32',
+                light: '#E37E59',
+                dark: '#8C3819',
+                pattern: '#FDF0EB',
+                accent: '#F3EFE6'
+            },
+            J: {
+                id: 'J',
+                name: 'Madaba Cobalt Tessera',
+                matrix: [
+                    [1, 0, 0],
+                    [1, 1, 1],
+                    [0, 0, 0]
+                ],
+                base: '#2E5B88',
+                light: '#5282B2',
+                dark: '#1B3B5C',
+                pattern: '#EBF3FA',
+                accent: '#E8B860'
+            },
+            L: {
+                id: 'L',
+                name: 'Nabataean Rose Relief',
+                matrix: [
+                    [0, 0, 1],
+                    [1, 1, 1],
+                    [0, 0, 0]
+                ],
+                base: '#C87D55',
+                light: '#E29F7B',
+                dark: '#8E5130',
+                pattern: '#FDF3ED',
+                accent: '#2A2624'
+            }
+        };
+
+        const PIECE_KEYS = Object.keys(TETRIMINOS);
+
+        /***********************************************************************
+         * 2. SYNTHESIZED WEB AUDIO API ENGINE (STONE CLICKS & CERAMIC CHIMES)
+         ***********************************************************************/
+        class AcousticMosaicAudio {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+                // Hijaz-inspired scale frequencies (D4, Eb4, F#4, G4, A4, Bb4, C#5, D5)
+                this.scale = [293.66, 311.13, 369.99, 392.00, 440.00, 466.16, 554.37, 587.33];
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            toggleMute() {
+                this.muted = !this.muted;
+                return this.muted;
+            }
+
+            // Crisp limestone tap when moving horizontally
+            playMove() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(195, now);
+                osc.frequency.exponentialRampToValueAtTime(85, now + 0.035);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.04);
+            }
+
+            // Ceramic glaze spin sound on rotation
+            playRotate() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.065);
+
+                gain.gain.setValueAtTime(0.14, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.075);
+            }
+
+            // Mortar lock click when a piece settles gently
+            playLock() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(160, now);
+                osc.frequency.exponentialRampToValueAtTime(65, now + 0.08);
+
+                gain.gain.setValueAtTime(0.22, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.09);
+            }
+
+            // Deep sandstone thud on Hard Drop
+            playHardDrop() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(135, now);
+                osc.frequency.exponentialRampToValueAtTime(42, now + 0.14);
+
+                gain.gain.setValueAtTime(0.32, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.16);
+            }
+
+            // Shimmering ceramic mosaic chime + tesserae shatter when clearing lines
+            playLineClear(linesCount) {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const notesCount = Math.min(8, linesCount * 2 + 2);
+
+                for (let i = 0; i < notesCount; i++) {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    const freq = this.scale[i % this.scale.length] * (linesCount === 4 ? 1.5 : 1);
+                    const startTime = now + i * 0.055;
+
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    gain.gain.setValueAtTime(0.16, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0008, startTime + 0.38);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.4);
+                }
+            }
+
+            playGameOver() {
+                if (this.muted) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const notes = [392.00, 369.99, 311.13, 293.66];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    const t = now + idx * 0.14;
+                    osc.frequency.setValueAtTime(freq, t);
+                    gain.gain.setValueAtTime(0.18, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.36);
+                });
+            }
+        }
+
+        const audio = new AcousticMosaicAudio();
+
+        /***********************************************************************
+         * 3. BESPOKE JORDANIAN MOSAIC TILE RENDERER (HTML5 CANVAS)
+         ***********************************************************************/
+        function drawMosaicTile(ctx, x, y, size, typeKey, options = {}) {
+            const spec = TETRIMINOS[typeKey];
+            if (!spec) return;
+
+            const {
+                alpha = 1,
+                ghost = false,
+                pulse = 0,     // 0..1 mortar lock-in glow
+                spinFlash = 0  // 0..1 rotation craftsmanship flash
+            } = options;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.globalAlpha = alpha;
+
+            const pad = 1.2;
+            const innerSize = size - pad * 2;
+
+            if (ghost) {
+                // Architectural Chalk / Carved Outline for Ghost Piece
+                ctx.strokeStyle = spec.base;
+                ctx.lineWidth = 1.75;
+                ctx.setLineDash([4, 3]);
+                ctx.strokeRect(pad + 1, pad + 1, innerSize - 2, innerSize - 2);
+                ctx.setLineDash([]);
+
+                // Subtle center geometric mark
+                ctx.fillStyle = spec.base;
+                ctx.globalAlpha = 0.22;
+                ctx.fillRect(pad + 4, pad + 4, innerSize - 8, innerSize - 8);
+                ctx.restore();
+                return;
+            }
+
+            // 1. Mortar Joint Shadow / Chamfered Stone Base
+            ctx.fillStyle = spec.dark;
+            ctx.beginPath();
+            ctx.roundRect(pad, pad, innerSize, innerSize, 4);
+            ctx.fill();
+
+            // 2. Main Ceramic / Sandstone Body
+            ctx.fillStyle = spec.base;
+            ctx.beginPath();
+            ctx.roundRect(pad + 1, pad + 1, innerSize - 2.5, innerSize - 2.5, 3.5);
+            ctx.fill();
+
+            // 3. Top-Left Chiseled Bevel Highlight
+            ctx.strokeStyle = spec.light;
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(pad + 2, size - pad - 3);
+            ctx.lineTo(pad + 2, pad + 2);
+            ctx.lineTo(size - pad - 3, pad + 2);
+            ctx.stroke();
+
+            // 4. Bespoke Traditional Geometric Motif per Tetrimino Type
+            const cx = size / 2;
+            const cy = size / 2;
+            const r = size * 0.28;
+
+            ctx.strokeStyle = spec.pattern;
+            ctx.fillStyle = spec.pattern;
+            ctx.lineWidth = 1.35;
+
+            switch (typeKey) {
+                case 'I': {
+                    // Dead Sea Turquoise Wave & Abaq Inlay Diamond
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy - r);
+                    ctx.lineTo(cx + r, cy);
+                    ctx.lineTo(cx, cy + r);
+                    ctx.lineTo(cx - r, cy);
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    ctx.fillStyle = spec.accent;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 2.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                }
+                case 'O': {
+                    // Umayyad 8-Petal Gold & Ochre Rosette
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(cx - r, cy);
+                    ctx.lineTo(cx + r, cy);
+                    ctx.moveTo(cx, cy - r);
+                    ctx.lineTo(cx, cy + r);
+                    ctx.stroke();
+
+                    ctx.fillStyle = spec.accent;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                }
+                case 'T': {
+                    // Iconic 8-Pointed Rub el Hizb Islamic/Levantine Star
+                    const s = r * 1.15;
+                    ctx.strokeRect(cx - s / 2, cy - s / 2, s, s);
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(Math.PI / 4);
+                    ctx.strokeRect(-s / 2, -s / 2, s, s);
+                    ctx.restore();
+
+                    ctx.fillStyle = spec.accent;
+                    ctx.fillRect(cx - 2, cy - 2, 4, 4);
+                    break;
+                }
+                case 'S': {
+                    // Ajloun Interlocking Olive Cross-Knot
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r * 0.65, 0, Math.PI * 2);
+                    ctx.stroke();
+                    // Corner tesserae dots
+                    const d = r * 0.85;
+                    [[-d, -d], [d, -d], [-d, d], [d, d]].forEach(([dx, dy]) => {
+                        ctx.fillRect(cx + dx - 1.2, cy + dy - 1.2, 2.4, 2.4);
+                    });
+                    break;
+                }
+                case 'Z': {
+                    // Wadi Rum Stepped Terracotta Chevron
+                    ctx.beginPath();
+                    ctx.moveTo(cx - r, cy - r * 0.45);
+                    ctx.lineTo(cx, cy + r * 0.45);
+                    ctx.lineTo(cx + r, cy - r * 0.45);
+                    ctx.moveTo(cx - r, cy + r * 0.25);
+                    ctx.lineTo(cx, cy - r * 0.65);
+                    ctx.lineTo(cx + r, cy + r * 0.25);
+                    ctx.stroke();
+                    break;
+                }
+                case 'J': {
+                    // Madaba Byzantine Mosaic Tesserae Grid
+                    const g = r * 0.85;
+                    ctx.strokeRect(cx - g, cy - g, g * 2, g * 2);
+                    ctx.fillStyle = spec.accent;
+                    ctx.fillRect(cx - 2.5, cy - 2.5, 5, 5);
+                    break;
+                }
+                case 'L': {
+                    // Nabataean Carved Sandstone Arch
+                    ctx.beginPath();
+                    ctx.arc(cx, cy + r * 0.15, r * 0.8, Math.PI, 0, false);
+                    ctx.lineTo(cx + r * 0.8, cy + r * 0.85);
+                    ctx.moveTo(cx - r * 0.8, cy + r * 0.15);
+                    ctx.lineTo(cx - r * 0.8, cy + r * 0.85);
+                    ctx.stroke();
+                    break;
+                }
+            }
+
+            // 5. Mortar Lock-in Pulse or Rotation Shimmer Overlay
+            const highlightIntensity = Math.max(pulse, spinFlash);
+            if (highlightIntensity > 0.01) {
+                ctx.fillStyle = `rgba(255, 248, 231, ${highlightIntensity * 0.55})`;
+                ctx.beginPath();
+                ctx.roundRect(pad, pad, innerSize, innerSize, 4);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        /***********************************************************************
+         * 4. CRAFTSMANSHIP PARTICLE & SHATTER ENGINE
+         *    - Hard-drop sandstone dust trail
+         *    - Mortar lock-in radial rings
+         *    - Line-clear mosaic tesserae shatter shards
+         ***********************************************************************/
+        class CraftParticleEngine {
+            constructor() {
+                this.particles = [];
+                this.lockPulses = []; // [{x, y, life, maxLife}]
+            }
+
+            // Spawn fine desert sandstone dust along a hard-drop column
+            spawnSandstoneDust(colX, startRowY, endRowY, widthCells, color) {
+                const count = Math.min(28, Math.max(8, (endRowY - startRowY) * 2));
+                for (let i = 0; i < count; i++) {
+                    const px = (colX + Math.random() * widthCells) * CELL;
+                    const py = (startRowY + Math.random() * Math.max(1, endRowY - startRowY)) * CELL;
+                    this.particles.push({
+                        kind: 'dust',
+                        x: px,
+                        y: py,
+                        vx: (Math.random() - 0.5) * 1.4,
+                        vy: -Math.random() * 1.6 - 0.3,
+                        size: Math.random() * 3.5 + 1.5,
+                        color: Math.random() > 0.4 ? color : '#E8D8C0',
+                        alpha: 0.85,
+                        life: 0,
+                        maxLife: 22 + Math.random() * 16
+                    });
+                }
+            }
+
+            // Trigger mortar-setting pulse on newly locked tiles
+            triggerLockPulse(cells) {
+                cells.forEach(({ x, y, type }) => {
+                    this.lockPulses.push({
+                        x,
+                        y,
+                        type,
+                        life: 0,
+                        maxLife: 16
+                    });
+                });
+            }
+
+            // Shatter a completed horizontal row of tiles into tiny mosaic tesserae shards
+            shatterMosaicRow(rowIndex, rowTypes) {
+                for (let c = 0; c < COLS; c++) {
+                    const typeKey = rowTypes[c] || 'T';
+                    const spec = TETRIMINOS[typeKey];
+                    const baseX = c * CELL;
+                    const baseY = rowIndex * CELL;
+
+                    // 6 tesserae shards per shattered block
+                    for (let s = 0; s < 6; s++) {
+                        const subX = (s % 3) * (CELL / 3) + 4;
+                        const subY = Math.floor(s / 3) * (CELL / 2) + 4;
+                        this.particles.push({
+                            kind: 'shard',
+                            x: baseX + subX,
+                            y: baseY + subY,
+                            vx: (Math.random() - 0.5) * 5.2,
+                            vy: (Math.random() - 0.75) * 4.8,
+                            gravity: 0.24,
+                            rot: Math.random() * Math.PI * 2,
+                            vRot: (Math.random() - 0.5) * 0.25,
+                            size: Math.random() * 5 + 4.5,
+                            color: s % 2 === 0 ? spec.base : (s % 3 === 0 ? spec.pattern : spec.accent),
+                            border: spec.dark,
+                            alpha: 1,
+                            life: 0,
+                            maxLife: 34 + Math.random() * 14
+                        });
+                    }
+                }
+            }
+
+            update() {
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.life++;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.gravity) p.vy += p.gravity;
+                    if (p.vRot) p.rot += p.vRot;
+                    p.alpha = Math.max(0, 1 - p.life / p.maxLife);
+
+                    if (p.life >= p.maxLife) {
+                        this.particles.splice(i, 1);
+                    }
+                }
+
+                for (let i = this.lockPulses.length - 1; i >= 0; i--) {
+                    const lp = this.lockPulses[i];
+                    lp.life++;
+                    if (lp.life >= lp.maxLife) {
+                        this.lockPulses.splice(i, 1);
+                    }
+                }
+            }
+
+            getPulseForCell(cx, cy) {
+                const found = this.lockPulses.find(lp => lp.x === cx && lp.y === cy);
+                if (!found) return 0;
+                return Math.sin((found.life / found.maxLife) * Math.PI);
+            }
+
+            render(ctx) {
+                for (const p of this.particles) {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.translate(p.x, p.y);
+                    if (p.rot) ctx.rotate(p.rot);
+
+                    if (p.kind === 'shard') {
+                        // Tiny fractured ceramic tessera cube
+                        ctx.fillStyle = p.color;
+                        ctx.strokeStyle = p.border;
+                        ctx.lineWidth = 1;
+                        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                        ctx.strokeRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    } else {
+                        // Sandstone dust mote
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+            }
+        }
+
+        /***********************************************************************
+         * 5. CORE TETRIS GAME ENGINE WITH SMOOTH SETTLE & ROTATION INTERPOLATION
+         ***********************************************************************/
+        class MosaicTetrisGame {
+            constructor() {
+                this.canvas = document.getElementById('tetrisCanvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                this.holdCanvas = document.getElementById('holdCanvas');
+                this.holdCtx = this.holdCanvas.getContext('2d');
+
+                this.nextCanvasDesktop = document.getElementById('nextCanvasDesktop');
+                this.nextCtxDesktop = this.nextCanvasDesktop.getContext('2d');
+
+                this.nextCanvasMobile = document.getElementById('nextCanvasMobile');
+                this.nextCtxMobile = this.nextCanvasMobile.getContext('2d');
+
+                this.fx = new CraftParticleEngine();
+
+                this.highScore = Number(localStorage.getItem('fusaifisa_high_score') || 0);
+                document.getElementById('highScoreDisplay').textContent = this.highScore.toLocaleString();
+
+                this.resetState();
+            }
+
+            resetState() {
+                // 20x10 grid of null or { type: 'T', settleOffsetY: 0 }
+                this.grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+                this.bag = [];
+                this.nextQueue = [];
+
+                this.score = 0;
+                this.lines = 0;
+                this.level = 1;
+                this.combo = -1;
+
+                this.holdType = null;
+                this.canHold = true;
+
+                this.activePiece = null;
+                this.dropAccumulator = 0;
+
+                // Visual craftsmanship animation states
+                this.boardShakeY = 0;
+                this.boardShakeDecay = 0.82;
+                this.clearingRows = []; // Rows currently fracturing before upper rows drop
+                this.clearTimer = 0;
+
+                this.state = 'IDLE'; // IDLE | PLAYING | PAUSED | GAMEOVER
+                this.fillQueue();
+                this.updateHUD();
+                this.drawPreviews();
+            }
+
+            fillQueue() {
+                while (this.nextQueue.length < 4) {
+                    if (this.bag.length === 0) {
+                        this.bag = [...PIECE_KEYS];
+                        // Fisher-Yates shuffle
+                        for (let i = this.bag.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [this.bag[i], this.bag[j]] = [this.bag[j], this.bag[i]];
+                        }
+                    }
+                    this.nextQueue.push(this.bag.pop());
+                }
+            }
+
+            spawnNextPiece() {
+                this.fillQueue();
+                const type = this.nextQueue.shift();
+                this.fillQueue();
+
+                const spec = TETRIMINOS[type];
+                const matrix = spec.matrix.map(r => [...r]);
+
+                this.activePiece = {
+                    type,
+                    matrix,
+                    x: Math.floor((COLS - matrix[0].length) / 2),
+                    y: 0,
+                    visualSpinFlash: 0, // Flash effect on rotation
+                    visualAngleOffset: 0 // Smooth angular settle
+                };
+                this.canHold = true;
+
+                document.getElementById('activeMotifName').textContent = spec.name;
+                this.drawPreviews();
+
+                if (this.collides(this.activePiece.x, this.activePiece.y, this.activePiece.matrix)) {
+                    this.triggerGameOver();
+                }
+            }
+
+            startOrTogglePause() {
+                if (this.state === 'IDLE' || this.state === 'GAMEOVER') {
+                    this.resetState();
+                    this.state = 'PLAYING';
+                    this.spawnNextPiece();
+                    this.syncOverlay();
+                    audio.playRotate();
+                } else if (this.state === 'PLAYING') {
+                    this.state = 'PAUSED';
+                    this.syncOverlay();
+                } else if (this.state === 'PAUSED') {
+                    this.state = 'PLAYING';
+                    this.syncOverlay();
+                }
+            }
+
+            restart() {
+                this.resetState();
+                this.state = 'PLAYING';
+                this.spawnNextPiece();
+                this.syncOverlay();
+                audio.playRotate();
+            }
+
+            triggerGameOver() {
+                this.state = 'GAMEOVER';
+                audio.playGameOver();
+                this.syncOverlay();
+            }
+
+            syncOverlay() {
+                const overlay = document.getElementById('boardOverlay');
+                const title = document.getElementById('overlayTitle');
+                const subtitle = document.getElementById('overlaySubtitle');
+                const btnText = document.getElementById('overlayBtnText');
+                const iconPlayPause = document.getElementById('iconPlayPause');
+                const labelPlayPause = document.getElementById('labelPlayPause');
+
+                if (this.state === 'PLAYING') {
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                    iconPlayPause.textContent = 'pause';
+                    labelPlayPause.textContent = 'Pause';
+                } else {
+                    overlay.classList.remove('opacity-0', 'pointer-events-none');
+                    iconPlayPause.textContent = 'play_arrow';
+                    labelPlayPause.textContent = this.state === 'PAUSED' ? 'Resume' : 'Play';
+
+                    if (this.state === 'PAUSED') {
+                        title.textContent = 'WORKSHOP PAUSED';
+                        subtitle.textContent = 'Your Jordanian stone mosaic awaits. Press Resume or P to continue setting tesserae.';
+                        btnText.textContent = 'Resume Craft';
+                    } else if (this.state === 'GAMEOVER') {
+                        title.textContent = 'MOSAIC SEALED';
+                        subtitle.textContent = `Final Score: ${this.score.toLocaleString()} across ${this.lines} rows in the ${HERITAGE_ERAS[(this.level - 1) % HERITAGE_ERAS.length]} epoch.`;
+                        btnText.textContent = 'Carve New Mosaic';
+                    } else {
+                        title.textContent = 'AL-FUSAIFISA';
+                        subtitle.textContent = 'Assemble carved Petra sandstone, Dead Sea glazed ceramic, and Umayyad star tesserae into complete courtyard rows.';
+                        btnText.textContent = 'Begin Mosaic';
+                    }
+                }
+            }
+
+            collides(nx, ny, mat) {
+                for (let r = 0; r < mat.length; r++) {
+                    for (let c = 0; c < mat[r].length; c++) {
+                        if (!mat[r][c]) continue;
+                        const gx = nx + c;
+                        const gy = ny + r;
+                        if (gx < 0 || gx >= COLS || gy >= ROWS) return true;
+                        if (gy >= 0 && this.grid[gy][gx]) return true;
+                    }
+                }
+                return false;
+            }
+
+            move(dir) {
+                if (this.state !== 'PLAYING' || !this.activePiece || this.clearTimer > 0) return false;
+                const nx = this.activePiece.x + dir;
+                if (!this.collides(nx, this.activePiece.y, this.activePiece.matrix)) {
+                    this.activePiece.x = nx;
+                    audio.playMove();
+                    return true;
+                }
+                return false;
+            }
+
+            rotate() {
+                if (this.state !== 'PLAYING' || !this.activePiece || this.clearTimer > 0) return;
+                const mat = this.activePiece.matrix;
+                const N = mat.length;
+                const rotated = Array.from({ length: N }, () => Array(N).fill(0));
+                for (let r = 0; r < N; r++) {
+                    for (let c = 0; c < N; c++) {
+                        rotated[c][N - 1 - r] = mat[r][c];
+                    }
+                }
+
+                // Wall kick offsets
+                const kicks = [
+                    [0, 0], [-1, 0], [1, 0], [0, -1], [-2, 0], [2, 0]
+                ];
+
+                for (const [kx, ky] of kicks) {
+                    if (!this.collides(this.activePiece.x + kx, this.activePiece.y + ky, rotated)) {
+                        this.activePiece.x += kx;
+                        this.activePiece.y += ky;
+                        this.activePiece.matrix = rotated;
+                        // Trigger rotation craftsmanship animation
+                        this.activePiece.visualSpinFlash = 1.0;
+                        this.activePiece.visualAngleOffset = -0.35; // Smoothly interpolates to 0
+                        audio.playRotate();
+                        return;
+                    }
+                }
+            }
+
+            softDrop() {
+                if (this.state !== 'PLAYING' || !this.activePiece || this.clearTimer > 0) return;
+                if (!this.collides(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix)) {
+                    this.activePiece.y++;
+                    this.score += 1;
+                    this.dropAccumulator = 0;
+                    this.updateHUD();
+                } else {
+                    this.lockActivePiece();
+                }
+            }
+
+            getGhostY() {
+                if (!this.activePiece) return 0;
+                let gy = this.activePiece.y;
+                while (!this.collides(this.activePiece.x, gy + 1, this.activePiece.matrix)) {
+                    gy++;
+                }
+                return gy;
+            }
+
+            hardDrop() {
+                if (this.state !== 'PLAYING' || !this.activePiece || this.clearTimer > 0) return;
+                const startY = this.activePiece.y;
+                const targetY = this.getGhostY();
+                const cellsDropped = Math.max(0, targetY - startY);
+
+                // Spawn sandstone dust trail
+                const spec = TETRIMINOS[this.activePiece.type];
+                this.fx.spawnSandstoneDust(
+                    this.activePiece.x,
+                    startY,
+                    targetY + 1,
+                    this.activePiece.matrix[0].length,
+                    spec.base
+                );
+
+                this.activePiece.y = targetY;
+                this.score += cellsDropped * 2;
+                this.boardShakeY = 6.5; // Tactile stone impact shake
+                audio.playHardDrop();
+                this.lockActivePiece();
+            }
+
+            holdPiece() {
+                if (this.state !== 'PLAYING' || !this.activePiece || !this.canHold || this.clearTimer > 0) return;
+
+                const currentType = this.activePiece.type;
+                if (!this.holdType) {
+                    this.holdType = currentType;
+                    this.spawnNextPiece();
+                } else {
+                    const swapType = this.holdType;
+                    this.holdType = currentType;
+                    const spec = TETRIMINOS[swapType];
+                    this.activePiece = {
+                        type: swapType,
+                        matrix: spec.matrix.map(r => [...r]),
+                        x: Math.floor((COLS - spec.matrix[0].length) / 2),
+                        y: 0,
+                        visualSpinFlash: 0.7,
+                        visualAngleOffset: 0
+                    };
+                    document.getElementById('activeMotifName').textContent = spec.name;
+                }
+
+                this.canHold = false;
+                audio.playRotate();
+                this.drawPreviews();
+            }
+
+            lockActivePiece() {
+                if (!this.activePiece) return;
+                const { matrix, x, y, type } = this.activePiece;
+                const lockedCoords = [];
+
+                for (let r = 0; r < matrix.length; r++) {
+                    for (let c = 0; c < matrix[r].length; c++) {
+                        if (!matrix[r][c]) continue;
+                        const gx = x + c;
+                        const gy = y + r;
+                        if (gy >= 0 && gy < ROWS && gx >= 0 && gx < COLS) {
+                            this.grid[gy][gx] = {
+                                type,
+                                settleOffsetY: 0
+                            };
+                            lockedCoords.push({ x: gx, y: gy, type });
+                        }
+                    }
+                }
+
+                // Mortar setting pulse on locked tiles
+                this.fx.triggerLockPulse(lockedCoords);
+                audio.playLock();
+                this.activePiece = null;
+
+                // Check for completed horizontal mosaic courses
+                const fullRows = [];
+                for (let r = 0; r < ROWS; r++) {
+                    if (this.grid[r].every(cell => cell !== null)) {
+                        fullRows.push(r);
+                    }
+                }
+
+                if (fullRows.length > 0) {
+                    this.triggerLineShatter(fullRows);
+                } else {
+                    this.combo = -1;
+                    document.getElementById('comboDisplay').textContent = '0x';
+                    this.spawnNextPiece();
+                }
+
+                this.updateHUD();
+            }
+
+            triggerLineShatter(fullRows) {
+                this.clearingRows = fullRows;
+                this.clearTimer = 18; // Frames of fracture shimmer before upper rows settle
+
+                // Spawn mosaic tesserae shards for each block in the cleared rows
+                fullRows.forEach(r => {
+                    const rowTypes = this.grid[r].map(cell => cell.type);
+                    this.fx.shatterMosaicRow(r, rowTypes);
+                });
+
+                const count = fullRows.length;
+                this.combo++;
+                const basePoints = [0, 100, 300, 500, 800][count] || 800;
+                const comboBonus = this.combo > 0 ? 50 * this.combo * this.level : 0;
+                const earned = basePoints * this.level + comboBonus;
+
+                this.score += earned;
+                this.lines += count;
+                this.level = Math.floor(this.lines / 10) + 1;
+
+                const craftTitles = {
+                    1: 'Course Set',
+                    2: 'Double Arch',
+                    3: 'Triple Vault',
+                    4: 'FUSAIFISA MASTERWORK!'
+                };
+                this.showCraftToast(`${craftTitles[count]} +${earned}`);
+                document.getElementById('comboDisplay').textContent = `${Math.max(1, this.combo + 1)}x`;
+
+                this.boardShakeY = count * 2.5;
+                audio.playLineClear(count);
+                this.updateHUD();
+            }
+
+            finishLineShatterAndSettle() {
+                const clearedSet = new Set(this.clearingRows);
+                const newGrid = [];
+
+                // Calculate how many cleared rows lie below each surviving row for smooth visual settling
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (clearedSet.has(r)) continue;
+                    let dropCount = 0;
+                    for (const cr of this.clearingRows) {
+                        if (cr > r) dropCount++;
+                    }
+                    const rowCopy = this.grid[r].map(cell => {
+                        if (!cell) return null;
+                        return {
+                            type: cell.type,
+                            settleOffsetY: -dropCount * CELL // Starts above and smoothly glides down to 0
+                        };
+                    });
+                    newGrid.unshift(rowCopy);
+                }
+
+                while (newGrid.length < ROWS) {
+                    newGrid.unshift(Array(COLS).fill(null));
+                }
+
+                this.grid = newGrid;
+                this.clearingRows = [];
+                this.spawnNextPiece();
+            }
+
+            showCraftToast(text) {
+                const toast = document.getElementById('craftToast');
+                const label = document.getElementById('craftToastText');
+                label.textContent = text;
+                toast.classList.remove('opacity-0', '-translate-y-2');
+                toast.classList.add('opacity-100', 'translate-y-0');
+
+                clearTimeout(this.toastTimeout);
+                this.toastTimeout = setTimeout(() => {
+                    toast.classList.remove('opacity-100', 'translate-y-0');
+                    toast.classList.add('opacity-0', '-translate-y-2');
+                }, 1350);
+            }
+
+            updateHUD() {
+                document.getElementById('scoreDisplay').textContent = this.score.toLocaleString();
+                document.getElementById('linesDisplay').textContent = this.lines;
+                document.getElementById('levelDisplay').textContent = this.level;
+                document.getElementById('eraBadge').textContent = HERITAGE_ERAS[(this.level - 1) % HERITAGE_ERAS.length];
+
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('fusaifisa_high_score', String(this.highScore));
+                    document.getElementById('highScoreDisplay').textContent = this.highScore.toLocaleString();
+                }
+            }
+
+            drawPreviews() {
+                // 1. Draw Hold Canvas
+                this.holdCtx.clearRect(0, 0, this.holdCanvas.width, this.holdCanvas.height);
+                if (this.holdType) {
+                    this.drawMiniPiece(
+                        this.holdCtx,
+                        this.holdType,
+                        this.holdCanvas.width / 2,
+                        this.holdCanvas.height / 2,
+                        22,
+                        this.canHold ? 1 : 0.45
+                    );
+                }
+
+                // 2. Draw Mobile Next (1 Piece)
+                this.nextCtxMobile.clearRect(0, 0, this.nextCanvasMobile.width, this.nextCanvasMobile.height);
+                if (this.nextQueue[0]) {
+                    this.drawMiniPiece(
+                        this.nextCtxMobile,
+                        this.nextQueue[0],
+                        this.nextCanvasMobile.width / 2,
+                        this.nextCanvasMobile.height / 2,
+                        22,
+                        1
+                    );
+                }
+
+                // 3. Draw Desktop Next Queue (3 Pieces)
+                this.nextCtxDesktop.clearRect(0, 0, this.nextCanvasDesktop.width, this.nextCanvasDesktop.height);
+                for (let i = 0; i < 3; i++) {
+                    const type = this.nextQueue[i];
+                    if (!type) continue;
+                    this.drawMiniPiece(
+                        this.nextCtxDesktop,
+                        type,
+                        this.nextCanvasDesktop.width / 2,
+                        45 + i * 84,
+                        24,
+                        i === 0 ? 1 : 0.82
+                    );
+                }
+            }
+
+            drawMiniPiece(ctx, typeKey, centerX, centerY, tileSize, alpha = 1) {
+                const spec = TETRIMINOS[typeKey];
+                const mat = spec.matrix;
+                // Find tight bounding box for accurate centering
+                let minR = 99, maxR = -1, minC = 99, maxC = -1;
+                for (let r = 0; r < mat.length; r++) {
+                    for (let c = 0; c < mat[r].length; c++) {
+                        if (mat[r][c]) {
+                            minR = Math.min(minR, r);
+                            maxR = Math.max(maxR, r);
+                            minC = Math.min(minC, c);
+                            maxC = Math.max(maxC, c);
+                        }
+                    }
+                }
+                const w = (maxC - minC + 1) * tileSize;
+                const h = (maxR - minR + 1) * tileSize;
+                const startX = centerX - w / 2;
+                const startY = centerY - h / 2;
+
+                for (let r = minR; r <= maxR; r++) {
+                    for (let c = minC; c <= maxC; c++) {
+                        if (mat[r][c]) {
+                            drawMosaicTile(
+                                ctx,
+                                startX + (c - minC) * tileSize,
+                                startY + (r - minR) * tileSize,
+                                tileSize,
+                                typeKey,
+                                { alpha }
+                            );
+                        }
+                    }
+                }
+            }
+
+            update(dt) {
+                // Always update particles and board impact damping
+                this.fx.update();
+                if (Math.abs(this.boardShakeY) > 0.05) {
+                    this.boardShakeY *= this.boardShakeDecay;
+                } else {
+                    this.boardShakeY = 0;
+                }
+
+                // Smoothly settle upper rows after a line shatter
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const cell = this.grid[r][c];
+                        if (cell && Math.abs(cell.settleOffsetY) > 0.2) {
+                            cell.settleOffsetY *= 0.72;
+                        } else if (cell) {
+                            cell.settleOffsetY = 0;
+                        }
+                    }
+                }
+
+                if (this.state !== 'PLAYING') return;
+
+                // Handle line fracture animation pause before settling
+                if (this.clearTimer > 0) {
+                    this.clearTimer--;
+                    if (this.clearTimer === 0) {
+                        this.finishLineShatterAndSettle();
+                    }
+                    return;
+                }
+
+                if (this.activePiece) {
+                    // Decay rotation craftsmanship flash & interpolation
+                    if (this.activePiece.visualSpinFlash > 0.01) {
+                        this.activePiece.visualSpinFlash *= 0.82;
+                    } else {
+                        this.activePiece.visualSpinFlash = 0;
+                    }
+                    if (Math.abs(this.activePiece.visualAngleOffset) > 0.01) {
+                        this.activePiece.visualAngleOffset *= 0.68;
+                    } else {
+                        this.activePiece.visualAngleOffset = 0;
+                    }
+
+                    // Gravity interval scales with level
+                    const dropInterval = Math.max(95, 880 - (this.level - 1) * 68);
+                    this.dropAccumulator += dt;
+                    if (this.dropAccumulator >= dropInterval) {
+                        this.dropAccumulator = 0;
+                        if (!this.collides(this.activePiece.x, this.activePiece.y + 1, this.activePiece.matrix)) {
+                            this.activePiece.y++;
+                        } else {
+                            this.lockActivePiece();
+                        }
+                    }
+                }
+            }
+
+            render() {
+                const ctx = this.ctx;
+                ctx.save();
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Apply subtle vertical impact shake from hard drop / line shatter
+                ctx.translate(0, this.boardShakeY);
+
+                // 1. Subtle Geometric Courtyard Grid & Corner Rosettes
+                const isDark = document.documentElement.classList.contains('dark');
+                ctx.strokeStyle = isDark ? 'rgba(215, 203, 184, 0.06)' : 'rgba(130, 112, 95, 0.13)';
+                ctx.lineWidth = 1;
+
+                for (let c = 0; c <= COLS; c++) {
+                    ctx.beginPath();
+                    ctx.moveTo(c * CELL, 0);
+                    ctx.lineTo(c * CELL, ROWS * CELL);
+                    ctx.stroke();
+                }
+                for (let r = 0; r <= ROWS; r++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, r * CELL);
+                    ctx.lineTo(COLS * CELL, r * CELL);
+                    ctx.stroke();
+                }
+
+                // Faint architectural diamond watermarks at grid intersections every 2 cells
+                ctx.fillStyle = isDark ? 'rgba(215, 203, 184, 0.07)' : 'rgba(160, 120, 95, 0.14)';
+                for (let r = 2; r < ROWS; r += 2) {
+                    for (let c = 2; c < COLS; c += 2) {
+                        ctx.fillRect(c * CELL - 1.5, r * CELL - 1.5, 3, 3);
+                    }
+                }
+
+                // 2. Render Placed Mosaic Tiles on the Board
+                const clearingSet = new Set(this.clearingRows);
+                for (let r = 0; r < ROWS; r++) {
+                    const isRowShattering = clearingSet.has(r);
+                    for (let c = 0; c < COLS; c++) {
+                        const cell = this.grid[r][c];
+                        if (!cell) continue;
+
+                        if (isRowShattering) {
+                            // Fracture flash while shards disperse
+                            drawMosaicTile(
+                                ctx,
+                                c * CELL,
+                                r * CELL,
+                                CELL,
+                                cell.type,
+                                {
+                                    alpha: this.clearTimer / 18,
+                                    pulse: 1.0
+                                }
+                            );
+                        } else {
+                            const pulse = this.fx.getPulseForCell(c, r);
+                            drawMosaicTile(
+                                ctx,
+                                c * CELL,
+                                r * CELL + (cell.settleOffsetY || 0),
+                                CELL,
+                                cell.type,
+                                { pulse }
+                            );
+                        }
+                    }
+                }
+
+                // 3. Render Ghost Piece & Active Piece
+                if (this.activePiece && this.clearTimer === 0) {
+                    const { matrix, x, y, type, visualSpinFlash, visualAngleOffset } = this.activePiece;
+                    const ghostY = this.getGhostY();
+
+                    // Ghost Piece
+                    if (ghostY > y) {
+                        for (let r = 0; r < matrix.length; r++) {
+                            for (let c = 0; c < matrix[r].length; c++) {
+                                if (matrix[r][c]) {
+                                    drawMosaicTile(
+                                        ctx,
+                                        (x + c) * CELL,
+                                        (ghostY + r) * CELL,
+                                        CELL,
+                                        type,
+                                        { ghost: true }
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    // Active Piece with smooth rotation interpolation around its center
+                    ctx.save();
+                    const centerPx = (x + matrix[0].length / 2) * CELL;
+                    const centerPy = (y + matrix.length / 2) * CELL;
+                    ctx.translate(centerPx, centerPy);
+                    ctx.rotate(visualAngleOffset);
+                    ctx.translate(-centerPx, -centerPy);
+
+                    for (let r = 0; r < matrix.length; r++) {
+                        for (let c = 0; c < matrix[r].length; c++) {
+                            if (matrix[r][c]) {
+                                drawMosaicTile(
+                                    ctx,
+                                    (x + c) * CELL,
+                                    (y + r) * CELL,
+                                    CELL,
+                                    type,
+                                    { spinFlash: visualSpinFlash }
+                                );
+                            }
+                        }
+                    }
+                    ctx.restore();
+                }
+
+                // 4. Render Tesserae Shards & Sandstone Dust Particles
+                this.fx.render(ctx);
+
+                ctx.restore();
+            }
+        }
+
+        /***********************************************************************
+         * 6. INITIALIZATION, INPUT BINDINGS, & ANIMATION LOOP
+         ***********************************************************************/
+        window.onload = function () {
+            const game = new MosaicTetrisGame();
+
+            // Top App Bar Controls
+            document.getElementById('btnPlayPause').addEventListener('click', () => {
+                game.startOrTogglePause();
+            });
+
+            document.getElementById('btnOverlayAction').addEventListener('click', () => {
+                game.startOrTogglePause();
+            });
+
+            document.getElementById('btnRestart').addEventListener('click', () => {
+                game.restart();
+            });
+
+            document.getElementById('btnSound').addEventListener('click', () => {
+                const muted = audio.toggleMute();
+                const icon = document.getElementById('iconSound');
+                icon.textContent = muted ? 'volume_off' : 'volume_up';
+            });
+
+            document.getElementById('btnTheme').addEventListener('click', () => {
+                const html = document.documentElement;
+                html.classList.toggle('dark');
+                const isDark = html.classList.contains('dark');
+                document.getElementById('iconTheme').textContent = isDark ? 'light_mode' : 'dark_mode';
+            });
+
+            document.getElementById('btnInfo').addEventListener('click', () => {
+                const panel = document.getElementById('infoPanel');
+                panel.classList.toggle('hidden');
+            });
+
+            // Keyboard Controls
+            window.addEventListener('keydown', (e) => {
+                // Prevent page scrolling with game keys
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', ' '].includes(e.key)) {
+                    e.preventDefault();
+                }
+
+                const key = e.key.toLowerCase();
+
+                if (key === 'p' || key === 'escape') {
+                    game.startOrTogglePause();
+                    return;
+                }
+                if (key === 'r') {
+                    game.restart();
+                    return;
+                }
+                if (key === 'm') {
+                    document.getElementById('btnSound').click();
+                    return;
+                }
+
+                if (game.state !== 'PLAYING') return;
+
+                switch (e.key) {
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        game.move(-1);
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        game.move(1);
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        game.softDrop();
+                        break;
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                    case 'x':
+                    case 'X':
+                        game.rotate();
+                        break;
+                    case ' ':
+                        game.hardDrop();
+                        break;
+                    case 'c':
+                    case 'C':
+                    case 'Shift':
+                        game.holdPiece();
+                        break;
+                }
+            });
+
+            // On-Screen Material Touch / Pointer Buttons
+            const bindControl = (id, action) => {
+                const btn = document.getElementById(id);
+                btn.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    if (game.state === 'IDLE') {
+                        game.startOrTogglePause();
+                    } else {
+                        action();
+                    }
+                });
+            };
+
+            bindControl('touchLeft', () => game.move(-1));
+            bindControl('touchRight', () => game.move(1));
+            bindControl('touchRotate', () => game.rotate());
+            bindControl('touchSoftDrop', () => game.softDrop());
+            bindControl('touchHardDrop', () => game.hardDrop());
+            bindControl('touchHold', () => game.holdPiece());
+
+            // Canvas Direct Touch Gestures (Swipe left/right/down, Tap to rotate)
+            let touchStartX = null;
+            let touchStartY = null;
+            let touchStartTime = 0;
+
+            const canvasEl = document.getElementById('tetrisCanvas');
+            canvasEl.addEventListener('touchstart', (e) => {
+                if (game.state !== 'PLAYING') return;
+                const t = e.touches[0];
+                touchStartX = t.clientX;
+                touchStartY = t.clientY;
+                touchStartTime = performance.now();
+            }, { passive: true });
+
+            canvasEl.addEventListener('touchend', (e) => {
+                if (game.state !== 'PLAYING' || touchStartX === null) return;
+                const t = e.changedTouches[0];
+                const dx = t.clientX - touchStartX;
+                const dy = t.clientY - touchStartY;
+                const elapsed = performance.now() - touchStartTime;
+
+                if (Math.abs(dx) < 14 && Math.abs(dy) < 14 && elapsed < 240) {
+                    game.rotate();
+                } else if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 24) {
+                    game.move(dx > 0 ? 1 : -1);
+                } else if (dy > 42) {
+                    game.hardDrop();
+                }
+                touchStartX = null;
+                touchStartY = null;
+            }, { passive: true });
+
+            // Main 60FPS Animation Loop
+            let lastTime = performance.now();
+            function gameLoop(now) {
+                const dt = Math.min(100, now - lastTime);
+                lastTime = now;
+
+                game.update(dt);
+                game.render();
+
+                requestAnimationFrame(gameLoop);
+            }
+
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+</body>
+</html>
